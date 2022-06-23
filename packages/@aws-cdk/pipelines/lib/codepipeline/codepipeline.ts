@@ -6,7 +6,7 @@ import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import { Aws, CfnCapabilities, Duration, Fn, Lazy, PhysicalName, Stack } from '@aws-cdk/core';
 import * as cxapi from '@aws-cdk/cx-api';
-import { Construct, Node } from 'constructs';
+import { Construct } from 'constructs';
 import { AssetType, FileSet, IFileSetProducer, ManualApprovalStep, ShellStep, StackAsset, StackDeployment, Step } from '../blueprint';
 import { DockerCredential, dockerCredentialsInstallCommands, DockerCredentialUsage } from '../docker-credentials';
 import { GraphNodeCollection, isGraph, AGraphNode, PipelineGraph } from '../helpers-internal';
@@ -18,10 +18,11 @@ import { toPosixPath } from '../private/fs';
 import { actionName, stackVariableNamespace } from '../private/identifiers';
 import { enumerate, flatten, maybeSuffix, noUndefined } from '../private/javascript';
 import { writeTemplateConfiguration } from '../private/template-configuration';
-import { CodeBuildFactory, mergeCodeBuildOptions } from './_codebuild-factory';
 import { ArtifactMap } from './artifact-map';
 import { CodeBuildStep } from './codebuild-step';
 import { CodePipelineActionFactoryResult, ICodePipelineActionFactory } from './codepipeline-action-factory';
+import { CodeBuildFactory, mergeCodeBuildOptions } from './private/codebuild-factory';
+import { namespaceStepOutputs } from './private/outputs';
 
 
 /**
@@ -261,6 +262,13 @@ export interface CodeBuildOptions {
   readonly subnetSelection?: ec2.SubnetSelection;
 
   /**
+   * Caching strategy to use.
+   *
+   * @default - No cache
+   */
+  readonly cache?: cb.Cache;
+
+  /**
    * The number of minutes after which AWS CodeBuild stops the build if it's
    * not complete. For valid values, see the timeoutInMinutes field in the AWS
    * CodeBuild User Guide.
@@ -418,9 +426,14 @@ export class CodePipeline extends PipelineBase {
             const factory = this.actionFromNode(node);
 
             const nodeType = this.nodeTypeFromNode(node);
+            const name = actionName(node, sharedParent);
+
+            const variablesNamespace = node.data?.type === 'step'
+              ? namespaceStepOutputs(node.data.step, pipelineStage, name)
+              : undefined;
 
             const result = factory.produceAction(pipelineStage, {
-              actionName: actionName(node, sharedParent),
+              actionName: name,
               runOrder,
               artifacts: this.artifacts,
               scope: obtainScope(this.pipeline, stageName),
@@ -429,6 +442,7 @@ export class CodePipeline extends PipelineBase {
               // If this step happens to produce a CodeBuild job, set the default options
               codeBuildDefaults: nodeType ? this.codeBuildDefaultsFor(nodeType) : undefined,
               beforeSelfMutation,
+              variablesNamespace,
             });
 
             if (node.data?.type === 'self-update') {
@@ -768,10 +782,10 @@ export class CodePipeline extends PipelineBase {
     const id = arn;
 
     // https://github.com/aws/aws-cdk/issues/7255
-    let existingRole = Node.of(scope).tryFindChild(`ImmutableRole${id}`) as iam.IRole;
+    let existingRole = scope.node.tryFindChild(`ImmutableRole${id}`) as iam.IRole;
     if (existingRole) { return existingRole; }
     // For when #7255 is fixed.
-    existingRole = Node.of(scope).tryFindChild(id) as iam.IRole;
+    existingRole = scope.node.tryFindChild(id) as iam.IRole;
     if (existingRole) { return existingRole; }
 
     const arnToImport = cxapi.EnvironmentPlaceholders.replace(arn, {
