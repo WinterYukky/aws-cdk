@@ -53,12 +53,12 @@ export async function dasmTypeScript(template: Template, options: DisassemblerOp
   // imports
   //
 
-  code.line(`import { Stack, StackProps, Fn } from '@aws-cdk/core';`);
+  code.line(`import { Stack, StackProps, Fn } from 'aws-cdk-lib';`);
   code.line(`import { Construct } from 'constructs';`);
 
   for (const ns of getUniqueNamespaces(definitions)) {
-    const importName = `@aws-cdk/aws-${ns}`;
-    code.line(`import ${ns} = require('${importName}');`);
+    const importName = `aws-cdk-lib/aws_${ns}`;
+    code.line(`import ${ns} from '${importName}';`);
   }
 
   code.line();
@@ -140,12 +140,12 @@ function capitalizeKeys(x: any): any {
 
 function toCfnClassName(resourceType: string) {
   const [ , namespace, type ] = resourceType.split('::');
-  const className = `${namespace.toLocaleLowerCase()}.Cfn${type}`;
+  const className = `${(namespace === 'Serverless' ? 'Sam' : namespace).toLocaleLowerCase()}.Cfn${type}`;
   return { namespace: namespace.toLocaleLowerCase(), className };
 }
 
 function getUniqueNamespaces(definitions: Array<ConstructDefinition>): String[] {
-  return [... new Set(definitions.map(definition => definition.namespace))];
+  return [... new Set(definitions.map(definition => definition.namespace))].map((ns) => ns === 'serverless' ? 'sam' : ns);
 }
 
 interface Template {

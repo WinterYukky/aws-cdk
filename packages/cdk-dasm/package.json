@@ -31,11 +31,11 @@
   "license": "Apache-2.0",
   "dependencies": {
     "codemaker": "1.72.0",
-    "yaml": "1.10.2"
+    "yaml-cfn": "^0.3.2"
   },
   "devDependencies": {
     "@types/jest": "^27.5.2",
-    "@types/yaml": "1.9.7",
+    "@types/js-yaml": "^4.0.5",
     "jest": "^27.5.1",
     "typescript": "~3.9.10"
   },

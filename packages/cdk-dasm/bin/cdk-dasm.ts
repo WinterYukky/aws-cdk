@@ -1,4 +1,4 @@
-import * as YAML from 'yaml';
+import * as YAML from 'yaml-cfn';
 import { dasmTypeScript } from '../lib';
 
 let s = '';
@@ -8,7 +8,7 @@ process.stdin.on('data', data => {
 });
 
 process.stdin.on('end', () => {
-  dasmTypeScript(YAML.parse(s)).then(out => {
+  dasmTypeScript(YAML.yamlParse(s)).then(out => {
     process.stdout.write(out);
   });
 });
