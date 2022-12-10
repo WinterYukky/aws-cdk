@@ -57,8 +57,8 @@ export async function dasmTypeScript(template: Template, options: DisassemblerOp
   code.line(`import { Construct } from 'constructs';`);
 
   for (const ns of getUniqueNamespaces(definitions)) {
-    const importName = `aws-cdk-lib/aws_${ns}`;
-    code.line(`import ${ns} from '${importName}';`);
+    const importName = `aws-cdk-lib/aws-${ns}`;
+    code.line(`import * as ${ns} from '${importName}';`);
   }
 
   code.line();
