@@ -1,3 +1,4 @@
+/// <reference path="../../../../../../../../../node_modules/aws-cdk-lib/custom-resources/lib/provider-framework/types.d.ts" />
 /* eslint-disable no-console */
 import * as AWS from 'aws-sdk';
 import * as api from './api';
