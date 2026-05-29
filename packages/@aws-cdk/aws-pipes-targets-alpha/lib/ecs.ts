@@ -17,72 +17,45 @@ import type {
   ITaskDefinition,
   PlacementConstraint,
   PlacementStrategy,
-  PropagatedTagSource,
 } from 'aws-cdk-lib/aws-ecs';
 import {
   Compatibility,
+  LaunchType,
   NetworkMode,
+  PropagatedTagSource,
 } from 'aws-cdk-lib/aws-ecs';
 import type { IRole } from 'aws-cdk-lib/aws-iam';
 import { Grant } from 'aws-cdk-lib/aws-iam';
 import type { CfnPipe } from 'aws-cdk-lib/aws-pipes';
 
 /**
- * Configuration returned from binding compute to the pipe
+ * Compute configuration for an ECS task target.
+ *
+ * The values are merged into the ECS task parameters by `EcsTaskTarget`.
  */
-export interface IEcsTaskTargetComputeConfig {
+export interface EcsTaskTargetComputeConfig {
   /**
-   * The ECS task parameters
+   * The launch type on which to run the task.
+   *
+   * @default - No launch type (a capacity provider strategy is used)
    */
-  readonly ecsTaskParameters: CfnPipe.PipeTargetEcsTaskParametersProperty;
-}
-
-/**
- * Compute configuration for ECS task target
- */
-export interface IEcsTaskTargetCompute {
+  readonly launchType?: LaunchType;
   /**
-   * Bind the compute configuration to the pipe
+   * The platform version on which to run the task.
+   *
+   * Only applies to the Fargate launch type.
+   *
+   * @default - ECS will set the Fargate platform version to 'LATEST'
    */
-  bind(
-    pipe: IPipe,
-    ecsTaskParameters: CfnPipe.PipeTargetEcsTaskParametersProperty
-  ): IEcsTaskTargetComputeConfig;
+  readonly platformVersion?: FargatePlatformVersion;
+  /**
+   * The capacity provider strategy to use for the task.
+   *
+   * @default - No capacity provider strategy (the cluster's default strategy is used)
+   */
+  readonly capacityProviderStrategy?: CapacityProviderStrategy[];
 }
 
-class DefaultCapacityProviderStrategyCompute implements IEcsTaskTargetCompute {
-  bind(
-    _pipe: IPipe,
-    ecsTaskParameters: CfnPipe.PipeTargetEcsTaskParametersProperty,
-  ) {
-    return { ecsTaskParameters };
-  }
-}
-
-enum LaunchType {
-  EC2 = 'EC2',
-  FARGATE = 'FARGATE',
-  EXTERNAL = 'EXTERNAL',
-}
-abstract class LaunchTypeCompute implements IEcsTaskTargetCompute {
-  constructor(private readonly launchType: LaunchType) { }
-  bind(
-    _pipe: IPipe,
-    ecsTaskParameters: CfnPipe.PipeTargetEcsTaskParametersProperty,
-  ): IEcsTaskTargetComputeConfig {
-    return {
-      ecsTaskParameters: {
-        ...ecsTaskParameters,
-        launchType: this.launchType,
-      } satisfies CfnPipe.PipeTargetEcsTaskParametersProperty,
-    };
-  }
-}
-class Ec2LaunchTypeCompute extends LaunchTypeCompute {
-  constructor() {
-    super(LaunchType.EC2);
-  }
-}
 /**
  * Options for Fargate launch type compute
  */
@@ -98,82 +71,77 @@ export interface FargateLaunchTypeComputeOptions {
    */
   readonly platformVersion?: FargatePlatformVersion;
 }
-class FargateLaunchTypeCompute extends LaunchTypeCompute {
-  constructor(private readonly options?: FargateLaunchTypeComputeOptions) {
-    super(LaunchType.FARGATE);
-  }
-  bind(
-    pipe: IPipe,
-    ecsTaskParameters: CfnPipe.PipeTargetEcsTaskParametersProperty,
-  ): IEcsTaskTargetComputeConfig {
-    return {
-      ecsTaskParameters: {
-        ...super.bind(pipe, ecsTaskParameters).ecsTaskParameters,
-        platformVersion: this.options?.platformVersion,
-      } satisfies CfnPipe.PipeTargetEcsTaskParametersProperty,
-    };
-  }
-}
-class ExternalLaunchTypeCompute extends LaunchTypeCompute {
-  constructor() {
-    super(LaunchType.EXTERNAL);
-  }
-}
-
-class CapacityProviderStrategyCompute implements IEcsTaskTargetCompute {
-  constructor(
-    private readonly capacityProviderStrategy: CapacityProviderStrategy[],
-  ) { }
-  bind(
-    _pipe: IPipe,
-    ecsTaskParameters: CfnPipe.PipeTargetEcsTaskParametersProperty,
-  ): IEcsTaskTargetComputeConfig {
-    return {
-      ecsTaskParameters: {
-        ...ecsTaskParameters,
-        capacityProviderStrategy: this.capacityProviderStrategy,
-      },
-    };
-  }
-}
 
 /**
- * Compute configuration for ECS task target
+ * The compute on which to run an ECS task target.
+ *
+ * Use one of the static factory methods to select how the task is launched.
+ * This encapsulates the mutually exclusive choice between a launch type and a
+ * capacity provider strategy, together with launch-type specific options, so
+ * that callers do not need to know which ECS task parameters are valid for each
+ * launch type.
  */
 export abstract class EcsTaskTargetCompute {
   /**
    * Use EC2 launch type
    */
-  static ec2LaunchType(): IEcsTaskTargetCompute {
-    return new Ec2LaunchTypeCompute();
+  static ec2LaunchType(): EcsTaskTargetCompute {
+    return new LaunchTypeCompute(LaunchType.EC2);
   }
   /**
    * Use Fargate launch type
    */
-  static fargateLaunchType(
-    options?: FargateLaunchTypeComputeOptions,
-  ): IEcsTaskTargetCompute {
-    return new FargateLaunchTypeCompute(options);
+  static fargateLaunchType(options?: FargateLaunchTypeComputeOptions): EcsTaskTargetCompute {
+    return new LaunchTypeCompute(LaunchType.FARGATE, options?.platformVersion);
   }
   /**
    * Use External launch type
    */
-  static externalLaunchType(): IEcsTaskTargetCompute {
-    return new ExternalLaunchTypeCompute();
+  static externalLaunchType(): EcsTaskTargetCompute {
+    return new LaunchTypeCompute(LaunchType.EXTERNAL);
   }
   /**
    * Use the cluster's default capacity provider strategy
    */
-  static defaultCapacityProviderStrategy(): IEcsTaskTargetCompute {
-    return new DefaultCapacityProviderStrategyCompute();
+  static defaultCapacityProviderStrategy(): EcsTaskTargetCompute {
+    return new CapacityProviderStrategyCompute();
   }
   /**
    * Use a custom capacity provider strategy
    */
-  static capacityProviderStrategy(
-    capacityProviderStrategy: CapacityProviderStrategy[],
-  ): IEcsTaskTargetCompute {
+  static capacityProviderStrategy(capacityProviderStrategy: CapacityProviderStrategy[]): EcsTaskTargetCompute {
     return new CapacityProviderStrategyCompute(capacityProviderStrategy);
+  }
+
+  /**
+   * Bind the compute configuration to the pipe.
+   */
+  public abstract bind(pipe: IPipe): EcsTaskTargetComputeConfig;
+}
+
+class LaunchTypeCompute extends EcsTaskTargetCompute {
+  constructor(
+    private readonly launchType: LaunchType,
+    private readonly platformVersion?: FargatePlatformVersion,
+  ) {
+    super();
+  }
+  public bind(_pipe: IPipe): EcsTaskTargetComputeConfig {
+    return {
+      launchType: this.launchType,
+      platformVersion: this.platformVersion,
+    };
+  }
+}
+
+class CapacityProviderStrategyCompute extends EcsTaskTargetCompute {
+  constructor(private readonly capacityProviderStrategy?: CapacityProviderStrategy[]) {
+    super();
+  }
+  public bind(_pipe: IPipe): EcsTaskTargetComputeConfig {
+    return {
+      capacityProviderStrategy: this.capacityProviderStrategy,
+    };
   }
 }
 /**
@@ -251,7 +219,7 @@ export interface EcsTaskTargetProps {
    * @default - The computing option for LaunchType is automatically set according to the compatibility of the TaskDefinition.
    * If both EC2 and Fargate are present, the cluster's default capacity strategy will be selected.
    */
-  readonly compute?: IEcsTaskTargetCompute;
+  readonly compute?: EcsTaskTargetCompute;
   /**
    * Existing security groups to use for the task's ENIs
    *
@@ -270,9 +238,9 @@ export interface EcsTaskTargetProps {
   readonly subnetSelection?: SubnetSelection;
   /**
    * Specifies whether the task's elastic network interface receives a public IP address.
-   * You can specify true only when LaunchType is set to FARGATE.
+   * You can specify `true` only when the launch type is FARGATE.
    *
-   * @default - true if the subnet type is PUBLIC, otherwise false
+   * @default false
    */
   readonly assignPublicIp?: boolean;
   /**
@@ -378,73 +346,55 @@ export class EcsTaskTarget implements ITarget, IConnectable {
   readonly connections: Connections;
   private readonly cluster: ICluster;
   private readonly taskDefinition: ITaskDefinition;
-  private readonly subnetSelection?: SubnetSelection;
-  private readonly taskCount?: number;
-  private readonly assignPublicIp?: boolean;
-  private readonly enableExecuteCommand?: boolean;
-  private readonly enableECSManagedTags?: boolean;
-  private readonly compute: IEcsTaskTargetCompute;
-  private readonly inputTransformation?: IInputTransformation;
-  private readonly containerOverrides?: ContainerOverride[];
-  private readonly group?: string;
-  private readonly placementConstraints?: PlacementConstraint[];
-  private readonly placementStrategies?: PlacementStrategy[];
-  private readonly propagateTags?: PropagatedTagSource;
-  private readonly referenceId?: string;
-  private readonly cpu?: string;
-  private readonly memory?: string;
-  private readonly ephemeralStorage?: cdk.Size;
-  private readonly executionRole?: IRole;
-  private readonly taskRole?: IRole;
+  private readonly compute: EcsTaskTargetCompute;
 
-  constructor(cluster: ICluster, props: EcsTaskTargetProps) {
+  constructor(cluster: ICluster, private readonly props: EcsTaskTargetProps) {
     this.cluster = cluster;
     this.taskDefinition = props.taskDefinition;
-    this.subnetSelection = props.subnetSelection;
-    this.taskCount = props.taskCount ?? 1;
-    this.assignPublicIp = props.assignPublicIp;
-    this.enableExecuteCommand = props.enableExecuteCommand;
-    this.enableECSManagedTags = props.enableECSManagedTags ?? true;
-    this.compute =
-      props.compute ?? this.getDefaultCompute(props.taskDefinition);
-    this.inputTransformation = props.inputTransformation;
-    this.containerOverrides = props.containerOverrides;
-    this.group = props.group;
-    this.placementConstraints = props.placementConstraints;
-    this.placementStrategies = props.placementStrategies;
-    this.propagateTags = props.propagateTags;
-    this.referenceId = props.referenceId;
-    this.cpu = props.cpu;
-    this.memory = props.memory;
-    this.ephemeralStorage = props.ephemeralStorage;
-    this.executionRole = props.executionRole;
-    this.taskRole = props.taskRole;
+    this.compute = props.compute ?? this.getDefaultCompute(props.taskDefinition);
 
+    // Security groups (and the awsvpc network configuration) are only relevant
+    // when the task definition uses the awsvpc network mode.
+    const useAwsvpc = this.taskDefinition.networkMode === NetworkMode.AWS_VPC;
     this.connections = new Connections({
-      securityGroups: props.securityGroups ?? [
-        (this.taskDefinition.node.tryFindChild('SecurityGroup') as ISecurityGroup)
-        ?? this.createDefaultSecurityGroup(cluster.vpc),
-      ],
+      securityGroups: useAwsvpc
+        ? props.securityGroups ?? [
+          (this.taskDefinition.node.tryFindChild('SecurityGroup') as ISecurityGroup)
+            ?? this.createDefaultSecurityGroup(cluster.vpc),
+        ]
+        : [],
     });
   }
   get targetArn(): string {
     return this.cluster.clusterArn;
   }
   bind(pipe: IPipe): TargetConfig {
-    if (this.assignPublicIp && this.taskDefinition.networkMode !== NetworkMode.AWS_VPC) {
+    const { launchType, platformVersion, capacityProviderStrategy } = this.compute.bind(pipe);
+
+    if (this.props.assignPublicIp && launchType !== LaunchType.FARGATE) {
       throw new cdk.ValidationError(
-        "Specifies whether the task's elastic network interface receives a public IP address. You can specify ENABLED only when LaunchType in EcsParameters is set to FARGATE.",
+        `assignPublicIp can only be set to true when the launch type is FARGATE, got ${launchType ?? 'a capacity provider strategy'}.`,
         pipe,
       );
     }
+    if (this.props.propagateTags !== undefined && this.props.propagateTags !== PropagatedTagSource.TASK_DEFINITION) {
+      throw new cdk.ValidationError(
+        `propagateTags must be ${PropagatedTagSource.TASK_DEFINITION}, got ${this.props.propagateTags}.`,
+        pipe,
+      );
+    }
+
     const useAwsvpc = this.taskDefinition.networkMode === NetworkMode.AWS_VPC;
     const ecsTaskParameters = {
       taskDefinitionArn: this.taskDefinition.taskDefinitionArn,
-      taskCount: this.taskCount,
+      taskCount: this.props.taskCount ?? 1,
+      launchType,
+      platformVersion,
+      capacityProviderStrategy,
       networkConfiguration: useAwsvpc ? {
         awsvpcConfiguration: {
-          assignPublicIp: this.assignPublicIp ? 'ENABLED' : 'DISABLED',
-          subnets: this.cluster.vpc.selectSubnets(this.subnetSelection)
+          assignPublicIp: this.props.assignPublicIp ? 'ENABLED' : 'DISABLED',
+          subnets: this.cluster.vpc.selectSubnets(this.props.subnetSelection)
             .subnetIds,
           securityGroups: cdk.Lazy.list({
             produce: () =>
@@ -452,59 +402,82 @@ export class EcsTaskTarget implements ITarget, IConnectable {
           }),
         },
       } : undefined,
-      enableEcsManagedTags: this.enableECSManagedTags,
-      enableExecuteCommand: this.enableExecuteCommand,
-      group: this.group,
-      placementConstraints: this.placementConstraints?.flatMap((c) => c.toJson()),
-      placementStrategy: this.placementStrategies?.flatMap((s) => s.toJson()),
-      propagateTags: this.propagateTags,
-      referenceId: this.referenceId,
-      overrides: {
-        containerOverrides: this.containerOverrides?.map(
-          ({ containerName, memory, memoryReservation, ...overrides }) => ({
-            name: containerName,
-            memory: memory?.toMebibytes(),
-            memoryReservation: memoryReservation?.toMebibytes(),
-            ...overrides,
-          }),
-        ),
-        cpu: this.cpu,
-        memory: this.memory,
-        ephemeralStorage: this.ephemeralStorage ? { sizeInGiB: this.ephemeralStorage.toGibibytes() } : undefined,
-        executionRoleArn: this.executionRole?.roleArn,
-        taskRoleArn: this.taskRole?.roleArn,
-      },
+      enableEcsManagedTags: this.props.enableECSManagedTags ?? true,
+      enableExecuteCommand: this.props.enableExecuteCommand,
+      group: this.props.group,
+      placementConstraints: this.props.placementConstraints?.flatMap((c) => c.toJson()),
+      placementStrategy: this.props.placementStrategies?.flatMap((s) => s.toJson()),
+      propagateTags: this.props.propagateTags,
+      referenceId: this.props.referenceId,
+      overrides: this.renderOverrides(),
     } satisfies CfnPipe.PipeTargetEcsTaskParametersProperty;
-    const computeConfig = this.compute.bind(pipe, ecsTaskParameters);
 
-    const targetConfig = {
+    return {
       targetParameters: {
-        ecsTaskParameters: computeConfig.ecsTaskParameters,
-        inputTemplate: this.inputTransformation?.bind(pipe).inputTemplate,
+        ecsTaskParameters,
+        inputTemplate: this.props.inputTransformation?.bind(pipe).inputTemplate,
       },
     } satisfies TargetConfig;
+  }
 
-    return targetConfig;
+  private renderOverrides(): CfnPipe.PipeTargetEcsTaskParametersProperty['overrides'] {
+    const overrides = {
+      containerOverrides: this.props.containerOverrides?.map(
+        ({ containerName, memory, memoryReservation, ...rest }) => ({
+          name: containerName,
+          memory: memory?.toMebibytes(),
+          memoryReservation: memoryReservation?.toMebibytes(),
+          ...rest,
+        }),
+      ),
+      cpu: this.props.cpu,
+      memory: this.props.memory,
+      ephemeralStorage: this.props.ephemeralStorage
+        ? { sizeInGiB: this.props.ephemeralStorage.toGibibytes() }
+        : undefined,
+      executionRoleArn: this.props.executionRole?.roleArn,
+      taskRoleArn: this.props.taskRole?.roleArn,
+    };
+    return Object.values(overrides).some((value) => value !== undefined) ? overrides : undefined;
   }
   grantPush(grantee: IRole): void {
     Grant.addToPrincipal({
       grantee,
       actions: ['ecs:RunTask'],
       resourceArns: [this.taskDefinition.taskDefinitionArn],
+      conditions: {
+        ArnEquals: { 'ecs:cluster': this.cluster.clusterArn },
+      },
     });
+
+    const passRoleArns = [
+      this.taskDefinition.taskRole.roleArn,
+      this.taskDefinition.executionRole?.roleArn,
+      this.props.taskRole?.roleArn,
+      this.props.executionRole?.roleArn,
+    ].filter((arn): arn is string => arn !== undefined);
     Grant.addToPrincipal({
       grantee,
       actions: ['iam:PassRole'],
-      resourceArns: [
-        this.taskDefinition.taskRole.roleArn,
-        this.taskDefinition.executionRole?.roleArn ?? '',
-      ].filter((arn) => !!arn),
+      resourceArns: Array.from(new Set(passRoleArns)),
       conditions: {
         StringLike: {
           'iam:PassedToService': 'ecs-tasks.amazonaws.com',
         },
       },
     });
+
+    // ECS applies managed tags and propagated tags during RunTask, which
+    // requires ecs:TagResource on the tasks created in the target cluster.
+    if ((this.props.enableECSManagedTags ?? true) || this.props.propagateTags !== undefined) {
+      Grant.addToPrincipal({
+        grantee,
+        actions: ['ecs:TagResource'],
+        resourceArns: [
+          `arn:${this.cluster.stack.partition}:ecs:${this.cluster.env.region}:*:task/${this.cluster.clusterName}/*`,
+        ],
+      });
+    }
   }
 
   private createDefaultSecurityGroup(vpc: IVpc) {
