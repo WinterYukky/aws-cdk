@@ -627,7 +627,7 @@ describe('ecs-task', () => {
           source: new TestSource(),
           target,
         });
-      }).toThrow(/You can specify ENABLED only when LaunchType in EcsParameters is set to FARGATE/);
+      }).toThrow(/assignPublicIp can only be set to true when the launch type is FARGATE/);
     });
 
     it('should not have NetworkConfiguration for EC2 bridge mode task', () => {
@@ -693,6 +693,140 @@ describe('ecs-task', () => {
         TargetParameters: {
           EcsTaskParameters: {
             ReferenceId: 'my-reference-id',
+          },
+        },
+      });
+    });
+  });
+
+  describe('review fixes', () => {
+    it('should scope ecs:RunTask to the target cluster', () => {
+      const target = new EcsTaskTarget(cluster, { taskDefinition });
+
+      new Pipe(stack, 'Pipe', {
+        source: new TestSource(),
+        target,
+      });
+
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: 'ecs:RunTask',
+              Condition: {
+                ArnEquals: { 'ecs:cluster': { 'Fn::GetAtt': [Match.stringLikeRegexp('Cluster'), 'Arn'] } },
+              },
+            }),
+          ]),
+        },
+      });
+    });
+
+    it('should grant ecs:TagResource when managed tags are enabled', () => {
+      const target = new EcsTaskTarget(cluster, { taskDefinition });
+
+      new Pipe(stack, 'Pipe', {
+        source: new TestSource(),
+        target,
+      });
+
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: 'ecs:TagResource',
+              Effect: 'Allow',
+            }),
+          ]),
+        },
+      });
+    });
+
+    it('should not grant ecs:TagResource when managed tags are disabled and no propagateTags', () => {
+      const target = new EcsTaskTarget(cluster, {
+        taskDefinition,
+        enableECSManagedTags: false,
+      });
+
+      new Pipe(stack, 'Pipe', {
+        source: new TestSource(),
+        target,
+      });
+
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.not(Match.arrayWith([
+            Match.objectLike({ Action: 'ecs:TagResource' }),
+          ])),
+        },
+      });
+    });
+
+    it('should grant iam:PassRole for executionRole and taskRole overrides', () => {
+      const executionRole = new Role(stack, 'OverrideExecutionRole', {
+        assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
+      });
+      const taskRole = new Role(stack, 'OverrideTaskRole', {
+        assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
+      });
+
+      const target = new EcsTaskTarget(cluster, {
+        taskDefinition,
+        executionRole,
+        taskRole,
+      });
+
+      new Pipe(stack, 'Pipe', {
+        source: new TestSource(),
+        target,
+      });
+
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: 'iam:PassRole',
+              Resource: Match.arrayWith([
+                { 'Fn::GetAtt': [Match.stringLikeRegexp('OverrideExecutionRole'), 'Arn'] },
+                { 'Fn::GetAtt': [Match.stringLikeRegexp('OverrideTaskRole'), 'Arn'] },
+              ]),
+            }),
+          ]),
+        },
+      });
+    });
+
+    it('should throw when propagateTags is not TASK_DEFINITION', () => {
+      const target = new EcsTaskTarget(cluster, {
+        taskDefinition,
+        propagateTags: PropagatedTagSource.SERVICE,
+      });
+
+      expect(() => {
+        new Pipe(stack, 'Pipe', {
+          source: new TestSource(),
+          target,
+        });
+      }).toThrow(/propagateTags must be TASK_DEFINITION/);
+    });
+
+    it('should not render Overrides when no overrides are configured', () => {
+      const target = new EcsTaskTarget(cluster, { taskDefinition });
+
+      new Pipe(stack, 'Pipe', {
+        source: new TestSource(),
+        target,
+      });
+
+      const template = Template.fromStack(stack);
+      template.hasResourceProperties('AWS::Pipes::Pipe', {
+        TargetParameters: {
+          EcsTaskParameters: {
+            Overrides: Match.absent(),
           },
         },
       });
