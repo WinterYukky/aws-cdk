@@ -688,6 +688,9 @@ export abstract class DatabaseClusterBase extends Resource implements IDatabaseC
 
   /**
    * Add a custom endpoint to this cluster.
+   *
+   * The endpoint is created as a child construct of this cluster, so `id` must not clash with the
+   * ids of other children of the cluster (such as the `writer` and `readers` instances).
    */
   public addCustomEndpoint(id: string, options: ClusterCustomEndpointOptions = {}): ClusterCustomEndpoint {
     return new ClusterCustomEndpoint(this, id, {
@@ -1785,8 +1788,7 @@ export class DatabaseClusterFromSnapshot extends DatabaseClusterNew {
    * The writer instance of this cluster.
    *
    * Only available when the cluster is created with the `writer` property.
-   * This is `undefined` for Limitless clusters and for clusters created
-   * with the deprecated `instanceProps` property.
+   * This is `undefined` for clusters created with the deprecated `instanceProps` property.
    */
   public readonly writerInstance?: IAuroraClusterInstance;
 
@@ -1794,8 +1796,7 @@ export class DatabaseClusterFromSnapshot extends DatabaseClusterNew {
    * The reader instances of this cluster, in the order of the `readers` property.
    *
    * Only available when the cluster is created with the `writer` and `readers` properties.
-   * This is an empty list for Limitless clusters and for clusters created
-   * with the deprecated `instanceProps` property.
+   * This is an empty list for clusters created with the deprecated `instanceProps` property.
    */
   public readonly readerInstances: IAuroraClusterInstance[];
 

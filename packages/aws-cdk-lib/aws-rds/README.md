@@ -252,7 +252,8 @@ fn.addEnvironment('APP_DB_SOCKET_ADDRESS', appEndpoint.endpoint.socketAddress);
 
 The `endpointIdentifier` is part of the DNS name of the endpoint and must be unique in the AWS
 Region and account. It defaults to an identifier derived from the construct path. Changing it
-replaces the endpoint.
+replaces the endpoint. Moving an endpoint to another `cluster` also replaces it and, because the
+identifier is fixed, requires a new `endpointIdentifier` as well.
 
 > **Note:** Once a custom endpoint has an `include()` or `exclude()` list, RDS cannot remove the list
 > again in place. Switching such an endpoint to `CustomEndpointMembers.all()` requires replacing the

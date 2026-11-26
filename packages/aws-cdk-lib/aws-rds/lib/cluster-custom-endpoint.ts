@@ -3,7 +3,7 @@ import type { IDatabaseCluster } from './cluster-ref';
 import { Endpoint } from './endpoint';
 import { CfnDBClusterEndpoint } from './rds.generated';
 import type { CfnTag, IResource } from '../../core';
-import { ArnFormat, Lazy, Names, Resource, Stack, Token } from '../../core';
+import { ArnFormat, Fn, Names, Resource, Stack, Token } from '../../core';
 import { UnscopedValidationError, ValidationError } from '../../core/lib/errors';
 import { memoizedGetter } from '../../core/lib/helpers-internal';
 import { addConstructMetadata } from '../../core/lib/metadata-resource';
@@ -63,7 +63,8 @@ export class CustomEndpointMembers {
    *
    * Instances added to the cluster later are not members unless this list is updated.
    *
-   * @param instances the DB instances that are members of the endpoint, must not be empty
+   * @param instances the DB instances that are members of the endpoint; must not be empty and
+   *   must all belong to the cluster of the endpoint
    */
   public static include(instances: aws_rds.IDBInstanceRef[]): CustomEndpointMembers {
     if (instances.length === 0) {
@@ -77,7 +78,8 @@ export class CustomEndpointMembers {
    *
    * Instances added to the cluster later automatically become members.
    *
-   * @param instances the DB instances that are not members of the endpoint, must not be empty
+   * @param instances the DB instances that are not members of the endpoint; must not be empty and
+   *   must all belong to the cluster of the endpoint
    */
   public static exclude(instances: aws_rds.IDBInstanceRef[]): CustomEndpointMembers {
     if (instances.length === 0) {
@@ -263,12 +265,11 @@ export class ClusterCustomEndpoint extends ClusterCustomEndpointBase {
   public readonly endpoint: Endpoint;
 
   private readonly resource: CfnDBClusterEndpoint;
+  private readonly identifier: string;
 
   constructor(scope: Construct, id: string, props: ClusterCustomEndpointProps) {
     super(scope, id, {
-      physicalName: props.endpointIdentifier ?? Lazy.string({
-        produce: () => Names.uniqueResourceName(this, { maxLength: ENDPOINT_IDENTIFIER_MAX_LENGTH, separator: '-' }).toLowerCase(),
-      }),
+      physicalName: props.endpointIdentifier,
     });
     // Enhanced CDK Analytics Telemetry
     addConstructMetadata(this, props);
@@ -277,11 +278,12 @@ export class ClusterCustomEndpoint extends ClusterCustomEndpointBase {
       validateEndpointIdentifier(this, props.endpointIdentifier);
     }
 
+    this.identifier = props.endpointIdentifier ?? generateEndpointIdentifier(this);
     const members = (props.members ?? CustomEndpointMembers.all())._render();
 
     const resource = new CfnDBClusterEndpoint(this, 'Resource', {
       dbClusterIdentifier: props.cluster.clusterIdentifier,
-      dbClusterEndpointIdentifier: this.physicalName,
+      dbClusterEndpointIdentifier: this.identifier,
       customEndpointType: props.endpointType ?? CustomEndpointType.ANY,
       staticMembers: members.staticMembers,
       excludedMembers: members.excludedMembers,
@@ -289,7 +291,9 @@ export class ClusterCustomEndpoint extends ClusterCustomEndpointBase {
     });
 
     this.resource = resource;
-    this.endpointIdentifier = this.physicalName;
+    // The resource has no name attribute; the identifier is the last component of the ARN
+    // (arn:<partition>:rds:<region>:<account>:cluster-endpoint:<identifier>).
+    this.endpointIdentifier = this.getResourceNameAttribute(Fn.select(6, Fn.split(':', resource.attrDbClusterEndpointArn)));
     this.endpoint = new Endpoint(resource.attrEndpoint, props.cluster.clusterEndpoint.port);
   }
 
@@ -299,9 +303,22 @@ export class ClusterCustomEndpoint extends ClusterCustomEndpointBase {
       service: 'rds',
       resource: 'cluster-endpoint',
       arnFormat: ArnFormat.COLON_RESOURCE_NAME,
-      resourceName: this.physicalName,
+      resourceName: this.identifier,
     });
   }
+}
+
+/**
+ * Generate an identifier from the construct path that matches `ENDPOINT_IDENTIFIER_PATTERN`.
+ *
+ * `Names.uniqueResourceName()` may produce consecutive hyphens when it truncates a long path
+ * at a separator, which the pattern does not allow.
+ */
+function generateEndpointIdentifier(scope: Construct): string {
+  return Names.uniqueResourceName(scope, { maxLength: ENDPOINT_IDENTIFIER_MAX_LENGTH, separator: '-' })
+    .toLowerCase()
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 function validateEndpointIdentifier(scope: Construct, endpointIdentifier: string): void {
@@ -309,7 +326,7 @@ function validateEndpointIdentifier(scope: Construct, endpointIdentifier: string
     throw new ValidationError(lit`InvalidCustomEndpointIdentifierLength`, `\`endpointIdentifier\` must be between 1 and ${ENDPOINT_IDENTIFIER_MAX_LENGTH} characters long, got ${endpointIdentifier.length} characters: ${JSON.stringify(endpointIdentifier)}`, scope);
   }
   if (!ENDPOINT_IDENTIFIER_PATTERN.test(endpointIdentifier)) {
-    throw new ValidationError(lit`InvalidCustomEndpointIdentifier`, `\`endpointIdentifier\` must start with a letter and only contain lowercase letters, digits and non-consecutive hyphens, and must not end with a hyphen, got ${JSON.stringify(endpointIdentifier)}`, scope);
+    throw new ValidationError(lit`InvalidCustomEndpointIdentifier`, `\`endpointIdentifier\` must start with a lowercase letter and only contain lowercase letters, digits and non-consecutive hyphens, and must not end with a hyphen (uppercase letters are not allowed, use lowercase), got ${JSON.stringify(endpointIdentifier)}`, scope);
   }
 }
 

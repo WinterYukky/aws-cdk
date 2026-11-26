@@ -1,3 +1,4 @@
+import { Construct } from 'constructs';
 import { Match, Template } from '../../assertions';
 import * as ec2 from '../../aws-ec2';
 import * as cdk from '../../core';
@@ -37,7 +38,25 @@ describe('cluster custom endpoint', () => {
       ExcludedMembers: Match.absent(),
       Tags: Match.absent(),
     });
-    expect(stack.resolve(endpoint.endpointIdentifier)).toMatch(/^stack-endpoint-[0-9a-f]{8}$/);
+    const logicalId = stack.getLogicalId(endpoint.node.defaultChild as cdk.CfnResource);
+    expect(stack.resolve(endpoint.endpointIdentifier)).toEqual({
+      'Fn::Select': [6, { 'Fn::Split': [':', { 'Fn::GetAtt': [logicalId, 'DBClusterEndpointArn'] }] }],
+    });
+  });
+
+  test('generates an identifier matching the RDS pattern for a long construct path', () => {
+    // GIVEN a path whose human-readable part is truncated in the middle at separator boundaries
+    const scope = new Construct(new Construct(stack, 'a'.repeat(20)), 'm'.repeat(10));
+
+    // WHEN
+    new rds.ClusterCustomEndpoint(scope, 'b'.repeat(25), { cluster });
+
+    // THEN
+    const template = Template.fromStack(stack);
+    const identifier = Object.values(template.findResources('AWS::RDS::DBClusterEndpoint'))[0].Properties.DBClusterEndpointIdentifier;
+    expect(identifier.length).toBeLessThanOrEqual(63);
+    expect(identifier).toMatch(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/);
+    expect(identifier).toMatch(/^stack-a{20}-b{25}-[0-9a-f]{8}$/);
   });
 
   test('exposes the endpoint, identifier, ARN and reference', () => {
@@ -49,7 +68,9 @@ describe('cluster custom endpoint', () => {
 
     // THEN
     const logicalId = stack.getLogicalId(endpoint.node.defaultChild as cdk.CfnResource);
-    expect(stack.resolve(endpoint.endpointIdentifier)).toEqual('my-endpoint');
+    expect(stack.resolve(endpoint.endpointIdentifier)).toEqual({
+      'Fn::Select': [6, { 'Fn::Split': [':', { 'Fn::GetAtt': [logicalId, 'DBClusterEndpointArn'] }] }],
+    });
     expect(stack.resolve(endpoint.endpointArn)).toEqual({ 'Fn::GetAtt': [logicalId, 'DBClusterEndpointArn'] });
     expect(stack.resolve(endpoint.dbClusterEndpointRef.dbClusterEndpointArn)).toEqual({ 'Fn::GetAtt': [logicalId, 'DBClusterEndpointArn'] });
     expect(stack.resolve(endpoint.endpoint.hostname)).toEqual({ 'Fn::GetAtt': [logicalId, 'Endpoint'] });
@@ -258,7 +279,7 @@ describe('cluster custom endpoint', () => {
   ])('fails for identifier %j that does not match the allowed pattern', (endpointIdentifier) => {
     expect(() => {
       new rds.ClusterCustomEndpoint(stack, 'Endpoint', { cluster, endpointIdentifier });
-    }).toThrow(/must start with a letter and only contain lowercase letters, digits and non-consecutive hyphens/);
+    }).toThrow(/must start with a lowercase letter and only contain lowercase letters, digits and non-consecutive hyphens.*use lowercase/);
   });
 
   test.each([
