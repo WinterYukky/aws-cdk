@@ -259,9 +259,10 @@ replaces the endpoint.
 > endpoint, for example by giving it a new `endpointIdentifier`. Switching between `include()` and
 > `exclude()`, or changing the instances in the list, is done in place.
 
-A custom endpoint can also be added to an imported cluster, as long as the cluster is imported with
-its endpoint address and port, and existing custom endpoints can be imported with
-`ClusterCustomEndpoint.fromClusterCustomEndpointAttributes()`:
+A custom endpoint can also be created for an imported cluster (`addCustomEndpoint()` is not
+available on `IDatabaseCluster`, so use the `ClusterCustomEndpoint` construct directly), as long
+as the cluster is imported with its endpoint address and port. Existing custom endpoints can be
+imported with `ClusterCustomEndpoint.fromClusterCustomEndpointAttributes()`:
 
 ```ts
 const cluster = rds.DatabaseCluster.fromDatabaseClusterAttributes(this, 'Cluster', {
@@ -269,7 +270,8 @@ const cluster = rds.DatabaseCluster.fromDatabaseClusterAttributes(this, 'Cluster
   clusterEndpointAddress: 'my-cluster.cluster-abcdefghijkl.eu-west-1.rds.amazonaws.com',
   port: 5432,
 });
-const newEndpoint = cluster.addCustomEndpoint('Readers', {
+const newEndpoint = new rds.ClusterCustomEndpoint(this, 'Readers', {
+  cluster,
   endpointType: rds.CustomEndpointType.READER,
 });
 

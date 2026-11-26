@@ -209,7 +209,8 @@ describe('cluster custom endpoint', () => {
     });
 
     // WHEN
-    const endpoint = imported.addCustomEndpoint('Endpoint', {
+    const endpoint = new rds.ClusterCustomEndpoint(stack, 'Endpoint', {
+      cluster: imported,
       endpointIdentifier: 'imported-cluster-endpoint',
     });
 
