@@ -1,6 +1,6 @@
 {
  "Resources": {
-  "AwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725": {
+  "AwsApiCallRDSdescribeDBClusterEndpointsea0d8814a67c90f5429285deda4bcd44": {
    "Type": "Custom::DeployAssert@SdkCallRDSdescribeDBClusterEndpoints",
    "Properties": {
     "ServiceToken": {
@@ -44,10 +44,31 @@
        ]
       ]
      },
-     "DBClusterEndpointIdentifier": "\"integ-custom-endpoint-reader\""
+     "DBClusterEndpointIdentifier": {
+      "Fn::Join": [
+       "",
+       [
+        "\"",
+        {
+         "Fn::Select": [
+          6,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputFnGetAttClusterReaderA09A3718DBClusterEndpointArnB0BCC815"
+            }
+           ]
+          }
+         ]
+        },
+        "\""
+       ]
+      ]
+     }
     },
     "flattenResponse": "false",
-    "salt": "1795687484666"
+    "salt": "1795693183522"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
@@ -135,7 +156,7 @@
     }
    }
   },
-  "AwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe": {
+  "AwsApiCallRDSdescribeDBClusterEndpoints726665101756a005a45b68d172f98496": {
    "Type": "Custom::DeployAssert@SdkCallRDSdescribeDBClusterEndpoints",
    "Properties": {
     "ServiceToken": {
@@ -171,15 +192,36 @@
        ]
       ]
      },
-     "DBClusterEndpointIdentifier": "\"integ-custom-endpoint-any\""
+     "DBClusterEndpointIdentifier": {
+      "Fn::Join": [
+       "",
+       [
+        "\"",
+        {
+         "Fn::Select": [
+          6,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputFnGetAttClusterAny229F3A49DBClusterEndpointArn54173491"
+            }
+           ]
+          }
+         ]
+        },
+        "\""
+       ]
+      ]
+     }
     },
     "flattenResponse": "false",
-    "salt": "1795687484667"
+    "salt": "1795693183523"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   },
-  "AwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739": {
+  "AwsApiCallRDSdescribeDBClusterEndpoints08b6214c2e8e9ed9625acd8a73b14f89": {
    "Type": "Custom::DeployAssert@SdkCallRDSdescribeDBClusterEndpoints",
    "Properties": {
     "ServiceToken": {
@@ -204,36 +246,57 @@
        ]
       ]
      },
-     "DBClusterEndpointIdentifier": "\"awscdkrdsclustercustomendpoint-all-565a7391\""
+     "DBClusterEndpointIdentifier": {
+      "Fn::Join": [
+       "",
+       [
+        "\"",
+        {
+         "Fn::Select": [
+          6,
+          {
+           "Fn::Split": [
+            ":",
+            {
+             "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputFnGetAttAll865E4291DBClusterEndpointArn9258E5FB"
+            }
+           ]
+          }
+         ]
+        },
+        "\""
+       ]
+      ]
+     }
     },
     "flattenResponse": "false",
-    "salt": "1795687484669"
+    "salt": "1795693183525"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete"
   }
  },
  "Outputs": {
-  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725": {
+  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpointsea0d8814a67c90f5429285deda4bcd44": {
    "Value": {
     "Fn::GetAtt": [
-     "AwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725",
+     "AwsApiCallRDSdescribeDBClusterEndpointsea0d8814a67c90f5429285deda4bcd44",
      "assertion"
     ]
    }
   },
-  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe": {
+  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpoints726665101756a005a45b68d172f98496": {
    "Value": {
     "Fn::GetAtt": [
-     "AwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe",
+     "AwsApiCallRDSdescribeDBClusterEndpoints726665101756a005a45b68d172f98496",
      "assertion"
     ]
    }
   },
-  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739": {
+  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpoints08b6214c2e8e9ed9625acd8a73b14f89": {
    "Value": {
     "Fn::GetAtt": [
-     "AwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739",
+     "AwsApiCallRDSdescribeDBClusterEndpoints08b6214c2e8e9ed9625acd8a73b14f89",
      "assertion"
     ]
    }

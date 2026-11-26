@@ -259,8 +259,9 @@ identifier is fixed, requires a new `endpointIdentifier` as well.
 > again in place. Switching such an endpoint to `CustomEndpointMembers.all()` requires replacing the
 > endpoint; because the endpoint identifier is fixed, CloudFormation rejects the update with
 > "CloudFormation cannot update a stack when a custom-named resource requires replacing" unless you
-> also give the endpoint a new `endpointIdentifier`. Switching between `include()` and `exclude()`,
-> or changing the instances in the list, is done in place.
+> also give the endpoint a new `endpointIdentifier`. Switching an endpoint from `include()` to
+> `exclude()` or from `exclude()` to `include()` with the same instances is applied in place
+> (the stack update completes without replacing the endpoint).
 
 A custom endpoint can also be created for an imported cluster (`addCustomEndpoint()` is not
 available on `IDatabaseCluster`, so use the `ClusterCustomEndpoint` construct directly), as long

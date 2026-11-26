@@ -35,7 +35,7 @@
       "data": "CheckBootstrapVersion"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725/Default": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointsea0d8814a67c90f5429285deda4bcd44/Default": [
     {
       "type": "aws:cdk:analytics:construct",
       "data": "*"
@@ -49,10 +49,10 @@
       "data": "*"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725/AssertionResults": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointsea0d8814a67c90f5429285deda4bcd44/AssertionResults": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725"
+      "data": "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpointsea0d8814a67c90f5429285deda4bcd44"
     }
   ],
   "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/SingletonFunction1488541a7b23466481b69b4408076b81/Role": [
@@ -67,7 +67,7 @@
       "data": "SingletonFunction1488541a7b23466481b69b4408076b81HandlerCD40AE9F"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe/Default": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints726665101756a005a45b68d172f98496/Default": [
     {
       "type": "aws:cdk:analytics:construct",
       "data": "*"
@@ -81,13 +81,13 @@
       "data": "*"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe/AssertionResults": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints726665101756a005a45b68d172f98496/AssertionResults": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe"
+      "data": "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpoints726665101756a005a45b68d172f98496"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739/Default": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints08b6214c2e8e9ed9625acd8a73b14f89/Default": [
     {
       "type": "aws:cdk:analytics:construct",
       "data": "*"
@@ -101,28 +101,28 @@
       "data": "*"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739/AssertionResults": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints08b6214c2e8e9ed9625acd8a73b14f89/AssertionResults": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739"
+      "data": "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpoints08b6214c2e8e9ed9625acd8a73b14f89"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725/Default/Default": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointsea0d8814a67c90f5429285deda4bcd44/Default/Default": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "AwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725"
+      "data": "AwsApiCallRDSdescribeDBClusterEndpointsea0d8814a67c90f5429285deda4bcd44"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe/Default/Default": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints726665101756a005a45b68d172f98496/Default/Default": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "AwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe"
+      "data": "AwsApiCallRDSdescribeDBClusterEndpoints726665101756a005a45b68d172f98496"
     }
   ],
-  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739/Default/Default": [
+  "/cluster-custom-endpoint-integ/DefaultTest/DeployAssert/AwsApiCallRDSdescribeDBClusterEndpoints08b6214c2e8e9ed9625acd8a73b14f89/Default/Default": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "AwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739"
+      "data": "AwsApiCallRDSdescribeDBClusterEndpoints08b6214c2e8e9ed9625acd8a73b14f89"
     }
   ]
 }

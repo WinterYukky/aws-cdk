@@ -73,9 +73,9 @@
       "trace": [
         "Annotations.addMessage (/work/aws-cdk/packages/aws-cdk-lib/core/lib/annotations.js:279:29)",
         "Annotations.addWarningV2 (/work/aws-cdk/packages/aws-cdk-lib/core/lib/annotations.js:145:18)",
-        "PropertyInjectable.validateClusterInstances (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:635:51)",
-        "PropertyInjectable._createInstances (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:575:14)",
-        "new DatabaseCluster (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:1091:62)",
+        "PropertyInjectable.validateClusterInstances (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:638:51)",
+        "PropertyInjectable._createInstances (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:578:14)",
+        "new DatabaseCluster (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:1094:62)",
         "new DatabaseCluster (/work/aws-cdk/packages/aws-cdk-lib/core/lib/prop-injectable.js:32:13)",
         "Object.<anonymous> (/work/aws-cdk/packages/@aws-cdk-testing/framework-integ/test/aws-rds/test/integ.cluster-custom-endpoint.js:49:17)",
         "Module._compile (node:internal/modules/cjs/loader:1781:14)",
@@ -309,6 +309,18 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "ExportsOutputRefClusterEB0386A796A0E3FE"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Exports/Output{\"Fn::GetAtt\":[\"ClusterAny229F3A49\",\"DBClusterEndpointArn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttClusterAny229F3A49DBClusterEndpointArn54173491"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Exports/Output{\"Fn::GetAtt\":[\"All865E4291\",\"DBClusterEndpointArn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttAll865E4291DBClusterEndpointArn9258E5FB"
     }
   ],
   "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet1/Subnet": [

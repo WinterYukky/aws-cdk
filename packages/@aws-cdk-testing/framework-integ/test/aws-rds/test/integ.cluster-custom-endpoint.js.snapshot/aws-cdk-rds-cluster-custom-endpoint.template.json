@@ -601,6 +601,28 @@
    "Export": {
     "Name": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputRefClusterEB0386A796A0E3FE"
    }
+  },
+  "ExportsOutputFnGetAttClusterAny229F3A49DBClusterEndpointArn54173491": {
+   "Value": {
+    "Fn::GetAtt": [
+     "ClusterAny229F3A49",
+     "DBClusterEndpointArn"
+    ]
+   },
+   "Export": {
+    "Name": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputFnGetAttClusterAny229F3A49DBClusterEndpointArn54173491"
+   }
+  },
+  "ExportsOutputFnGetAttAll865E4291DBClusterEndpointArn9258E5FB": {
+   "Value": {
+    "Fn::GetAtt": [
+     "All865E4291",
+     "DBClusterEndpointArn"
+    ]
+   },
+   "Export": {
+    "Name": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputFnGetAttAll865E4291DBClusterEndpointArn9258E5FB"
+   }
   }
  },
  "Parameters": {

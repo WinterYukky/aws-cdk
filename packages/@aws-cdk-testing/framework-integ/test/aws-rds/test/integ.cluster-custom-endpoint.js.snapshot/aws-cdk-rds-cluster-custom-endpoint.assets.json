@@ -15,16 +15,16 @@
         }
       }
     },
-    "090d8616508963d3d8a2302e787837c4aa8d7da22649415ba86051a54102c55a": {
+    "5a1d54e1c84b69b533be6975108824b4dfc7a540789c3b172c3d5150afe536e9": {
       "displayName": "aws-cdk-rds-cluster-custom-endpoint Template",
       "source": {
         "path": "aws-cdk-rds-cluster-custom-endpoint.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-current_region-ef019171": {
+        "current_account-current_region-96ccfaf9": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "090d8616508963d3d8a2302e787837c4aa8d7da22649415ba86051a54102c55a.json",
+          "objectKey": "5a1d54e1c84b69b533be6975108824b4dfc7a540789c3b172c3d5150afe536e9.json",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }
