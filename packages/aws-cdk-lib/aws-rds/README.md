@@ -34,6 +34,17 @@ const cluster = new rds.DatabaseCluster(this, 'Database', {
 });
 ```
 
+The instances created for the `writer` and `readers` properties are available on the
+cluster as `writerInstance` and `readerInstances`, for example to reference them from
+other constructs or to look up their endpoints:
+
+```ts
+declare const cluster: rds.DatabaseCluster;
+
+const writerEndpointAddress = cluster.writerInstance?.dbInstanceEndpointAddress;
+const readerIdentifiers = cluster.readerInstances.map(reader => reader.instanceIdentifier);
+```
+
 To adopt Aurora I/O-Optimized, specify `DBClusterStorageType.AURORA_IOPT1` on the `storageType` property.
 
 ```ts

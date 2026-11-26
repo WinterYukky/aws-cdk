@@ -1137,6 +1137,87 @@ describe('cluster new api', () => {
     });
   });
 
+  describe('writerInstance and readerInstances', () => {
+    test('expose the bound writer and reader instances of a DatabaseCluster', () => {
+      // GIVEN
+      const stack = testStack();
+      const vpc = new ec2.Vpc(stack, 'VPC');
+
+      // WHEN
+      const cluster = new DatabaseCluster(stack, 'Database', {
+        engine: DatabaseClusterEngine.AURORA_MYSQL,
+        vpc,
+        writer: ClusterInstance.serverlessV2('writer'),
+        readers: [ClusterInstance.serverlessV2('reader1'), ClusterInstance.provisioned('reader2', { promotionTier: 1 })],
+      });
+
+      // THEN
+      expect(cluster.writerInstance?.node.id).toEqual('writer');
+      expect(cluster.writerInstance?.tier).toEqual(0);
+      expect(stack.resolve(cluster.writerInstance?.instanceIdentifier)).toEqual({ Ref: 'Databasewriter2462CC03' });
+      expect(cluster.readerInstances.map(r => r.node.id)).toEqual(['reader1', 'reader2']);
+      expect(cluster.readerInstances.map(r => r.instanceIdentifier)).toEqual(cluster.instanceIdentifiers.slice(1));
+    });
+
+    test('expose the bound writer and reader instances of a DatabaseClusterFromSnapshot', () => {
+      // GIVEN
+      const stack = testStack();
+      const vpc = new ec2.Vpc(stack, 'VPC');
+
+      // WHEN
+      const cluster = new DatabaseClusterFromSnapshot(stack, 'Database', {
+        engine: DatabaseClusterEngine.AURORA_MYSQL,
+        snapshotIdentifier: 'mySnapshot',
+        vpc,
+        writer: ClusterInstance.serverlessV2('writer'),
+        readers: [ClusterInstance.serverlessV2('reader')],
+      });
+
+      // THEN
+      expect(cluster.writerInstance?.node.id).toEqual('writer');
+      expect(cluster.readerInstances.map(r => r.node.id)).toEqual(['reader']);
+    });
+
+    test('are undefined and empty when the cluster is created with the deprecated instanceProps', () => {
+      // GIVEN
+      const stack = testStack();
+      const vpc = new ec2.Vpc(stack, 'VPC');
+
+      // WHEN
+      const cluster = new DatabaseCluster(stack, 'Database', {
+        engine: DatabaseClusterEngine.AURORA_MYSQL,
+        instanceProps: { vpc },
+      });
+
+      // THEN
+      expect(cluster.writerInstance).toBeUndefined();
+      expect(cluster.readerInstances).toEqual([]);
+    });
+
+    test('are undefined and empty for a Limitless cluster', () => {
+      // GIVEN
+      const stack = testStack();
+      const vpc = new ec2.Vpc(stack, 'VPC');
+
+      // WHEN
+      const cluster = new DatabaseCluster(stack, 'Database', {
+        engine: DatabaseClusterEngine.auroraPostgres({ version: AuroraPostgresEngineVersion.VER_16_4_LIMITLESS }),
+        vpc,
+        clusterScalabilityType: ClusterScalabilityType.LIMITLESS,
+        enablePerformanceInsights: true,
+        performanceInsightRetention: PerformanceInsightRetention.MONTHS_1,
+        monitoringInterval: cdk.Duration.minutes(1),
+        enableClusterLevelEnhancedMonitoring: true,
+        storageType: DBClusterStorageType.AURORA_IOPT1,
+        cloudwatchLogsExports: ['postgresql'],
+      });
+
+      // THEN
+      expect(cluster.writerInstance).toBeUndefined();
+      expect(cluster.readerInstances).toEqual([]);
+    });
+  });
+
   describe('instanceEndpoints', () => {
     test('should contain writer and reader instance endpoints at DatabaseCluster', () => {
       // GIVEN

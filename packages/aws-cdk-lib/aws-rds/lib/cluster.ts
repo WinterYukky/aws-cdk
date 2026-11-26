@@ -1056,6 +1056,8 @@ abstract class DatabaseClusterNew extends DatabaseClusterBase {
     return {
       instanceEndpoints,
       instanceIdentifiers,
+      writerInstance: writer,
+      readerInstances: readers,
     };
   }
 
@@ -1501,6 +1503,24 @@ export class DatabaseCluster extends DatabaseClusterNew {
   public readonly instanceEndpoints: Endpoint[];
 
   /**
+   * The writer instance of this cluster.
+   *
+   * Only available when the cluster is created with the `writer` property.
+   * This is `undefined` for Limitless clusters and for clusters created
+   * with the deprecated `instanceProps` property.
+   */
+  public readonly writerInstance?: IAuroraClusterInstance;
+
+  /**
+   * The reader instances of this cluster, in the order of the `readers` property.
+   *
+   * Only available when the cluster is created with the `writer` and `readers` properties.
+   * This is an empty list for Limitless clusters and for clusters created
+   * with the deprecated `instanceProps` property.
+   */
+  public readonly readerInstances: IAuroraClusterInstance[];
+
+  /**
    * The secret attached to this cluster
    */
   public readonly secret?: secretsmanager.ISecret;
@@ -1598,11 +1618,14 @@ export class DatabaseCluster extends DatabaseClusterNew {
       const createdInstances = props.writer ? this._createInstances(props) : legacyCreateInstances(this, props, this.subnetGroupRef);
       this.instanceIdentifiers = createdInstances.instanceIdentifiers;
       this.instanceEndpoints = createdInstances.instanceEndpoints;
+      this.writerInstance = createdInstances.writerInstance;
+      this.readerInstances = createdInstances.readerInstances;
     } else {
       // Limitless database does not have instances,
       // but an empty array will be assigned to avoid destructive changes.
       this.instanceIdentifiers = [];
       this.instanceEndpoints = [];
+      this.readerInstances = [];
     }
   }
 }
@@ -1747,6 +1770,24 @@ export class DatabaseClusterFromSnapshot extends DatabaseClusterNew {
   public readonly instanceEndpoints: Endpoint[];
 
   /**
+   * The writer instance of this cluster.
+   *
+   * Only available when the cluster is created with the `writer` property.
+   * This is `undefined` for Limitless clusters and for clusters created
+   * with the deprecated `instanceProps` property.
+   */
+  public readonly writerInstance?: IAuroraClusterInstance;
+
+  /**
+   * The reader instances of this cluster, in the order of the `readers` property.
+   *
+   * Only available when the cluster is created with the `writer` and `readers` properties.
+   * This is an empty list for Limitless clusters and for clusters created
+   * with the deprecated `instanceProps` property.
+   */
+  public readonly readerInstances: IAuroraClusterInstance[];
+
+  /**
    * The secret attached to this cluster
    */
   public readonly secret?: secretsmanager.ISecret;
@@ -1828,6 +1869,8 @@ export class DatabaseClusterFromSnapshot extends DatabaseClusterNew {
     const createdInstances = props.writer ? this._createInstances(props) : legacyCreateInstances(this, props, this.subnetGroupRef);
     this.instanceIdentifiers = createdInstances.instanceIdentifiers;
     this.instanceEndpoints = createdInstances.instanceEndpoints;
+    this.writerInstance = createdInstances.writerInstance;
+    this.readerInstances = createdInstances.readerInstances;
   }
 }
 
@@ -1860,6 +1903,8 @@ function setLogRetention(cluster: DatabaseClusterNew, props: DatabaseClusterBase
 interface InstanceConfig {
   readonly instanceIdentifiers: string[];
   readonly instanceEndpoints: Endpoint[];
+  readonly writerInstance?: IAuroraClusterInstance;
+  readonly readerInstances: IAuroraClusterInstance[];
 }
 
 /**
@@ -1973,7 +2018,7 @@ function legacyCreateInstances(cluster: DatabaseClusterNew, props: DatabaseClust
     }
   }
 
-  return { instanceEndpoints, instanceIdentifiers };
+  return { instanceEndpoints, instanceIdentifiers, readerInstances: [] };
 }
 
 /**
