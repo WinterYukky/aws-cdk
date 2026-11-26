@@ -260,8 +260,9 @@ export class ClusterCustomEndpoint extends ClusterCustomEndpointBase {
   }
 
   public readonly endpointIdentifier: string;
-  public readonly endpointArn: string;
   public readonly endpoint: Endpoint;
+
+  private readonly resource: CfnDBClusterEndpoint;
 
   constructor(scope: Construct, id: string, props: ClusterCustomEndpointProps) {
     super(scope, id, {
@@ -287,14 +288,19 @@ export class ClusterCustomEndpoint extends ClusterCustomEndpointBase {
       tags: renderTags(props.tags),
     });
 
+    this.resource = resource;
     this.endpointIdentifier = this.physicalName;
-    this.endpointArn = this.getResourceArnAttribute(resource.attrDbClusterEndpointArn, {
+    this.endpoint = new Endpoint(resource.attrEndpoint, props.cluster.clusterEndpoint.port);
+  }
+
+  @memoizedGetter
+  public get endpointArn(): string {
+    return this.getResourceArnAttribute(this.resource.attrDbClusterEndpointArn, {
       service: 'rds',
       resource: 'cluster-endpoint',
       arnFormat: ArnFormat.COLON_RESOURCE_NAME,
       resourceName: this.physicalName,
     });
-    this.endpoint = new Endpoint(resource.attrEndpoint, props.cluster.clusterEndpoint.port);
   }
 }
 
