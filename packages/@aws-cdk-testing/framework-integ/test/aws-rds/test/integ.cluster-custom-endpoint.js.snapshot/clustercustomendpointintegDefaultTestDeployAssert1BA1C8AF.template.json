@@ -1,0 +1,276 @@
+{
+ "Resources": {
+  "AwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725": {
+   "Type": "Custom::DeployAssert@SdkCallRDSdescribeDBClusterEndpoints",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "SingletonFunction1488541a7b23466481b69b4408076b81HandlerCD40AE9F",
+      "Arn"
+     ]
+    },
+    "service": "RDS",
+    "api": "describeDBClusterEndpoints",
+    "expected": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"$ObjectLike\":{\"DBClusterEndpoints\":[{\"DBClusterEndpointIdentifier\":\"integ-custom-endpoint-reader\",\"EndpointType\":\"CUSTOM\",\"CustomEndpointType\":\"READER\",\"Status\":\"available\",\"StaticMembers\":[\"",
+       {
+        "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputRefClusterreader13AE3C596FF5BC8A3"
+       },
+       "\"],\"ExcludedMembers\":[],\"Endpoint\":\"",
+       {
+        "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputFnGetAttClusterReaderA09A3718Endpoint40AE2EE1"
+       },
+       "\",\"DBClusterEndpointArn\":\"",
+       {
+        "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputFnGetAttClusterReaderA09A3718DBClusterEndpointArnB0BCC815"
+       },
+       "\"}]}}"
+      ]
+     ]
+    },
+    "parameters": {
+     "DBClusterIdentifier": {
+      "Fn::Join": [
+       "",
+       [
+        "\"",
+        {
+         "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputRefClusterEB0386A796A0E3FE"
+        },
+        "\""
+       ]
+      ]
+     },
+     "DBClusterEndpointIdentifier": "\"integ-custom-endpoint-reader\""
+    },
+    "flattenResponse": "false",
+    "salt": "1795687484666"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "SingletonFunction1488541a7b23466481b69b4408076b81Role37ABCE73": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ],
+    "Policies": [
+     {
+      "PolicyName": "Inline",
+      "PolicyDocument": {
+       "Version": "2012-10-17",
+       "Statement": [
+        {
+         "Action": [
+          "rds:DescribeDBClusterEndpoints"
+         ],
+         "Effect": "Allow",
+         "Resource": [
+          "*"
+         ]
+        },
+        {
+         "Action": [
+          "rds:DescribeDBClusterEndpoints"
+         ],
+         "Effect": "Allow",
+         "Resource": [
+          "*"
+         ]
+        },
+        {
+         "Action": [
+          "rds:DescribeDBClusterEndpoints"
+         ],
+         "Effect": "Allow",
+         "Resource": [
+          "*"
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "SingletonFunction1488541a7b23466481b69b4408076b81HandlerCD40AE9F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Runtime": "nodejs24.x",
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "d96dfc27677de2a05d61781cc6a88de896048bc628cd1de59c60b905808823e8.zip"
+    },
+    "Timeout": 120,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "SingletonFunction1488541a7b23466481b69b4408076b81Role37ABCE73",
+      "Arn"
+     ]
+    },
+    "LoggingConfig": {
+     "LogFormat": "JSON",
+     "ApplicationLogLevel": "FATAL"
+    }
+   }
+  },
+  "AwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe": {
+   "Type": "Custom::DeployAssert@SdkCallRDSdescribeDBClusterEndpoints",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "SingletonFunction1488541a7b23466481b69b4408076b81HandlerCD40AE9F",
+      "Arn"
+     ]
+    },
+    "service": "RDS",
+    "api": "describeDBClusterEndpoints",
+    "expected": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"$ObjectLike\":{\"DBClusterEndpoints\":[{\"DBClusterEndpointIdentifier\":\"integ-custom-endpoint-any\",\"EndpointType\":\"CUSTOM\",\"CustomEndpointType\":\"ANY\",\"Status\":\"available\",\"StaticMembers\":[],\"ExcludedMembers\":[\"",
+       {
+        "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputRefClusterreader13AE3C596FF5BC8A3"
+       },
+       "\"]}]}}"
+      ]
+     ]
+    },
+    "parameters": {
+     "DBClusterIdentifier": {
+      "Fn::Join": [
+       "",
+       [
+        "\"",
+        {
+         "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputRefClusterEB0386A796A0E3FE"
+        },
+        "\""
+       ]
+      ]
+     },
+     "DBClusterEndpointIdentifier": "\"integ-custom-endpoint-any\""
+    },
+    "flattenResponse": "false",
+    "salt": "1795687484667"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  },
+  "AwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739": {
+   "Type": "Custom::DeployAssert@SdkCallRDSdescribeDBClusterEndpoints",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "SingletonFunction1488541a7b23466481b69b4408076b81HandlerCD40AE9F",
+      "Arn"
+     ]
+    },
+    "service": "RDS",
+    "api": "describeDBClusterEndpoints",
+    "expected": "{\"$ObjectLike\":{\"DBClusterEndpoints\":[{\"EndpointType\":\"CUSTOM\",\"CustomEndpointType\":\"ANY\",\"Status\":\"available\",\"StaticMembers\":[],\"ExcludedMembers\":[]}]}}",
+    "parameters": {
+     "DBClusterIdentifier": {
+      "Fn::Join": [
+       "",
+       [
+        "\"",
+        {
+         "Fn::ImportValue": "aws-cdk-rds-cluster-custom-endpoint:ExportsOutputRefClusterEB0386A796A0E3FE"
+        },
+        "\""
+       ]
+      ]
+     },
+     "DBClusterEndpointIdentifier": "\"awscdkrdsclustercustomendpoint-all-565a7391\""
+    },
+    "flattenResponse": "false",
+    "salt": "1795687484669"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete"
+  }
+ },
+ "Outputs": {
+  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AwsApiCallRDSdescribeDBClusterEndpointsc25dbb616cc87fc0d962584618744725",
+     "assertion"
+    ]
+   }
+  },
+  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AwsApiCallRDSdescribeDBClusterEndpoints3ad02d784a603619ebcad33e4116f5fe",
+     "assertion"
+    ]
+   }
+  },
+  "AssertionResultsAwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AwsApiCallRDSdescribeDBClusterEndpointscf867fa7f53f1aae4962810cd08a5739",
+     "assertion"
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

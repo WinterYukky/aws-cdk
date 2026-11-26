@@ -1,0 +1,14 @@
+{
+  "version": "55.0.0",
+  "testCases": {
+    "cluster-custom-endpoint-integ/DefaultTest": {
+      "stacks": [
+        "aws-cdk-rds-cluster-custom-endpoint"
+      ],
+      "assertionStack": "cluster-custom-endpoint-integ/DefaultTest/DeployAssert",
+      "assertionStackName": "clustercustomendpointintegDefaultTestDeployAssert1BA1C8AF"
+    }
+  },
+  "enableLookups": true,
+  "minimumCliVersion": "2.1149.0"
+}

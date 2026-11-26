@@ -1,0 +1,419 @@
+{
+  "/aws-cdk-rds-cluster-custom-endpoint": [
+    {
+      "type": "aws:cdk:acknowledged-rules",
+      "data": {
+        "CloudFormation-Validate::W3010": "Literal AZs in template are the result of accessing stack.availabilityZones, this is expected and safe"
+      },
+      "trace": [
+        "    at Validations.acknowledge (/work/aws-cdk/packages/aws-cdk-lib/core/lib/validation/validations.js:136:18)",
+        "    at IntegTestBaseStack._silenceLiteralAzWarning (/work/aws-cdk/packages/aws-cdk-lib/core/lib/stack.js:1524:49)",
+        "    at get availabilityZones (/work/aws-cdk/packages/aws-cdk-lib/core/lib/stack.js:870:18)",
+        "    at new Vpc (/work/aws-cdk/packages/aws-cdk-lib/aws-ec2/lib/vpc.js:839:48)",
+        "    at <anonymous> (/work/aws-cdk/packages/@aws-cdk-testing/framework-integ/test/aws-rds/test/integ.cluster-custom-endpoint.js:44:13)",
+        "    ...node internals..."
+      ]
+    },
+    {
+      "type": "aws:cdk:templateFile",
+      "data": "aws-cdk-rds-cluster-custom-endpoint.template.json"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "maxAzs": "*",
+        "natGateways": "*",
+        "subnetConfiguration": [
+          {
+            "name": "*",
+            "subnetType": "Isolated"
+          }
+        ]
+      }
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Custom::VpcRestrictDefaultSGCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "engine": {
+          "engineType": "*",
+          "engineVersion": {
+            "fullVersion": "*",
+            "majorVersion": "*"
+          },
+          "parameterGroupFamily": "*",
+          "singleUserRotationApplication": "*",
+          "engineFamily": "*",
+          "defaultUsername": "*",
+          "supportedLogTypes": "*"
+        },
+        "vpc": "*",
+        "vpcSubnets": {
+          "subnetType": "Isolated"
+        },
+        "serverlessV2MinCapacity": "*",
+        "serverlessV2MaxCapacity": "*",
+        "writer": "*",
+        "readers": "*",
+        "removalPolicy": "destroy"
+      }
+    },
+    {
+      "type": "aws:cdk:warning",
+      "data": "Cluster Cluster only has serverless readers and no reader is in promotion tier 0-1.Serverless readers in promotion tiers >= 2 will NOT scale with the writer, which can lead to availability issues if a failover event occurs. It is recommended that at least one reader has `scaleWithWriter` set to true [ack: @aws-cdk/aws-rds:noFailoverServerlessReaders]",
+      "trace": [
+        "Annotations.addMessage (/work/aws-cdk/packages/aws-cdk-lib/core/lib/annotations.js:279:29)",
+        "Annotations.addWarningV2 (/work/aws-cdk/packages/aws-cdk-lib/core/lib/annotations.js:145:18)",
+        "PropertyInjectable.validateClusterInstances (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:635:51)",
+        "PropertyInjectable._createInstances (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:575:14)",
+        "new DatabaseCluster (/work/aws-cdk/packages/aws-cdk-lib/aws-rds/lib/cluster.js:1091:62)",
+        "new DatabaseCluster (/work/aws-cdk/packages/aws-cdk-lib/core/lib/prop-injectable.js:32:13)",
+        "Object.<anonymous> (/work/aws-cdk/packages/@aws-cdk-testing/framework-integ/test/aws-rds/test/integ.cluster-custom-endpoint.js:49:17)",
+        "Module._compile (node:internal/modules/cjs/loader:1781:14)",
+        "Object..js (node:internal/modules/cjs/loader:1913:10)",
+        "Module.load (node:internal/modules/cjs/loader:1505:32)",
+        "Function._load (node:internal/modules/cjs/loader:1309:12)",
+        "wrapModuleLoad (node:internal/modules/cjs/loader:254:19)",
+        "Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)",
+        "node:internal/main/run_main_module:36:49"
+      ]
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/All": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/ReaderEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ReaderEndpoint"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/AnyEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AnyEndpoint"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/AllEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AllEndpoint"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/AllEndpointArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AllEndpointArn"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Vpc8378EB38"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet1": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "availabilityZone": "*",
+        "vpcId": "*",
+        "cidrBlock": "*",
+        "mapPublicIpOnLaunch": false,
+        "ipv6CidrBlock": "*",
+        "assignIpv6AddressOnCreation": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "availabilityZone": "*",
+        "vpcId": "*",
+        "cidrBlock": "*",
+        "mapPublicIpOnLaunch": false,
+        "ipv6CidrBlock": "*",
+        "assignIpv6AddressOnCreation": "*"
+      }
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet2": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "availabilityZone": "*",
+        "vpcId": "*",
+        "cidrBlock": "*",
+        "mapPublicIpOnLaunch": false,
+        "ipv6CidrBlock": "*",
+        "assignIpv6AddressOnCreation": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "availabilityZone": "*",
+        "vpcId": "*",
+        "cidrBlock": "*",
+        "mapPublicIpOnLaunch": false,
+        "ipv6CidrBlock": "*",
+        "assignIpv6AddressOnCreation": "*"
+      }
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/RestrictDefaultSecurityGroupCustomResource": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Subnets": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "description": "*",
+        "vpc": "*",
+        "vpcSubnets": {
+          "subnetType": "Isolated"
+        },
+        "removalPolicy": "*"
+      }
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/SecurityGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "description": "*",
+        "vpc": "*"
+      }
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Secret": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "encryptionKey": "*",
+        "secretName": "*",
+        "replicaRegions": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "username": "*",
+        "secretName": "*",
+        "encryptionKey": "*",
+        "excludeCharacters": "*",
+        "replaceOnPasswordCriteriaChanges": "*",
+        "replicaRegions": "*"
+      }
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterEB0386A7"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/writer": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/reader1": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/reader2": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Reader": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Any": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/All/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "All865E4291"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Exports/Output{\"Ref\":\"Clusterreader13AE3C596\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefClusterreader13AE3C596FF5BC8A3"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Exports/Output{\"Fn::GetAtt\":[\"ClusterReaderA09A3718\",\"Endpoint\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttClusterReaderA09A3718Endpoint40AE2EE1"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Exports/Output{\"Fn::GetAtt\":[\"ClusterReaderA09A3718\",\"DBClusterEndpointArn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttClusterReaderA09A3718DBClusterEndpointArnB0BCC815"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Exports/Output{\"Ref\":\"ClusterEB0386A7\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefClusterEB0386A796A0E3FE"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcisolatedSubnet1SubnetE62B1B9B"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcisolatedSubnet1RouteTableE442650B"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcisolatedSubnet1RouteTableAssociationD259E31A"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcisolatedSubnet2Subnet39217055"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcisolatedSubnet2RouteTable334F9764"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/isolatedSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcisolatedSubnet2RouteTableAssociation25A4716F"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Vpc/RestrictDefaultSecurityGroupCustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcRestrictDefaultSecurityGroupCustomResourceC73DA2BE"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Subnets/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterSubnetsDCFA5CB7"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/SecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterSecurityGroup0921994B"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Secret/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterSecret6368BD0F"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Secret/Attachment": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "secret": "*",
+        "target": "*"
+      }
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/writer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Clusterwriter2D9E9F4C"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/reader1/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Clusterreader13AE3C596"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/reader2/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Clusterreader238E0547E"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Reader/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterReaderA09A3718"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Any/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterAny229F3A49"
+    }
+  ],
+  "/aws-cdk-rds-cluster-custom-endpoint/Cluster/Secret/Attachment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterSecretAttachment769E6258"
+    }
+  ]
+}
