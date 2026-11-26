@@ -261,7 +261,6 @@ export class ClusterCustomEndpoint extends ClusterCustomEndpointBase {
     return new Import(scope, id);
   }
 
-  public readonly endpointIdentifier: string;
   public readonly endpoint: Endpoint;
 
   private readonly resource: CfnDBClusterEndpoint;
@@ -291,10 +290,20 @@ export class ClusterCustomEndpoint extends ClusterCustomEndpointBase {
     });
 
     this.resource = resource;
-    // The resource has no name attribute; the identifier is the last component of the ARN
-    // (arn:<partition>:rds:<region>:<account>:cluster-endpoint:<identifier>).
-    this.endpointIdentifier = this.getResourceNameAttribute(Fn.select(6, Fn.split(':', resource.attrDbClusterEndpointArn)));
     this.endpoint = new Endpoint(resource.attrEndpoint, props.cluster.clusterEndpoint.port);
+  }
+
+  /**
+   * The identifier of the custom endpoint.
+   *
+   * The resource has no name attribute; the identifier is the last component of the ARN
+   * (`arn:<partition>:rds:<region>:<account>:cluster-endpoint:<identifier>`).
+   *
+   * @attribute
+   */
+  @memoizedGetter
+  public get endpointIdentifier(): string {
+    return this.getResourceNameAttribute(Fn.select(6, Fn.split(':', this.resource.attrDbClusterEndpointArn)));
   }
 
   @memoizedGetter
