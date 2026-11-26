@@ -255,9 +255,9 @@ Region and account. It defaults to an identifier derived from the construct path
 replaces the endpoint. Moving an endpoint to another `cluster` also replaces it and, because the
 identifier is fixed, requires a new `endpointIdentifier` as well.
 
-> **Note:** Once a custom endpoint has an `include()` or `exclude()` list, RDS cannot remove the list
-> again in place. Switching such an endpoint to `CustomEndpointMembers.all()` requires replacing the
-> endpoint; because the endpoint identifier is fixed, CloudFormation rejects the update with
+> **Note:** Once a custom endpoint has an `include()` or `exclude()` list, CloudFormation replaces
+> the endpoint to remove the list. Switching such an endpoint to `CustomEndpointMembers.all()` therefore
+> requires replacing the endpoint; because the endpoint identifier is fixed, CloudFormation rejects the update with
 > "CloudFormation cannot update a stack when a custom-named resource requires replacing" unless you
 > also give the endpoint a new `endpointIdentifier`. Switching an endpoint from `include()` to
 > `exclude()` or from `exclude()` to `include()` with the same instances is applied in place
