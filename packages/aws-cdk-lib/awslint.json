@@ -138,6 +138,7 @@
     "props-physical-name:aws-cdk-lib.aws_lambda.WebFunctionEndpointProps",
     "props-physical-name:aws-cdk-lib.aws_logs.MetricFilterProps",
     "props-physical-name:aws-cdk-lib.aws_logs.SubscriptionFilterProps",
+    "props-physical-name:aws-cdk-lib.aws_rds.ClusterCustomEndpointProps",
     "props-physical-name:aws-cdk-lib.aws_rds.DatabaseClusterProps",
     "props-physical-name:aws-cdk-lib.aws_rds.DatabaseClusterFromSnapshotProps",
     "props-physical-name:aws-cdk-lib.aws_rds.DatabaseInstanceProps",

@@ -4,6 +4,7 @@ export * from './ca-certificate';
 export * from './database-insights-mode';
 export * from './cluster';
 export * from './cluster-ref';
+export * from './cluster-custom-endpoint';
 export * from './cluster-engine';
 export * from './instance-engine';
 export * from './props';

@@ -1,6 +1,8 @@
 import type { Construct } from 'constructs';
 import type { IAuroraClusterInstance, IClusterInstance } from './aurora-cluster-instance';
 import { InstanceType } from './aurora-cluster-instance';
+import type { ClusterCustomEndpointOptions } from './cluster-custom-endpoint';
+import { ClusterCustomEndpoint } from './cluster-custom-endpoint';
 import type { ClusterEngineConfig, IClusterEngine } from './cluster-engine';
 import type { DatabaseClusterAttributes, IDatabaseCluster } from './cluster-ref';
 import { DatabaseInsightsMode } from './database-insights-mode';
@@ -680,6 +682,16 @@ export abstract class DatabaseClusterBase extends Resource implements IDatabaseC
   public addProxy(id: string, options: DatabaseProxyOptions): DatabaseProxy {
     return new DatabaseProxy(this, id, {
       proxyTarget: ProxyTarget.fromCluster(this),
+      ...options,
+    });
+  }
+
+  /**
+   * Add a custom endpoint to this cluster.
+   */
+  public addCustomEndpoint(id: string, options: ClusterCustomEndpointOptions = {}): ClusterCustomEndpoint {
+    return new ClusterCustomEndpoint(this, id, {
+      cluster: this,
       ...options,
     });
   }

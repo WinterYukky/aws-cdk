@@ -204,6 +204,82 @@ const cluster = new rds.DatabaseCluster(this, 'Database', {
 });
 ```
 
+### Custom endpoints
+
+Every Aurora cluster has a cluster (writer) endpoint and a reader endpoint. In addition, you can
+create [custom endpoints](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html#Aurora.Endpoints.Custom)
+that route connections to a subset of the DB instances of the cluster, for example to send
+reporting queries to a dedicated set of readers.
+
+Use `addCustomEndpoint()` on a cluster (or create a `ClusterCustomEndpoint` directly) and choose
+the `endpointType` (`ANY`, `READER` or `WRITER`) and the `members` of the endpoint:
+
+- `CustomEndpointMembers.all()` (the default): all instances of the cluster, including instances added later.
+- `CustomEndpointMembers.include(instances)`: a static list of instances. Instances added to the cluster later are not members.
+- `CustomEndpointMembers.exclude(instances)`: all instances except the given ones, including instances added later.
+
+Only instances matching the `endpointType` receive connections, so a `READER` endpoint with
+`all()` members routes to all readers of the cluster.
+
+```ts
+declare const vpc: ec2.Vpc;
+const cluster = new rds.DatabaseCluster(this, 'Database', {
+  engine: rds.DatabaseClusterEngine.auroraPostgres({ version: rds.AuroraPostgresEngineVersion.VER_16_6 }),
+  writer: rds.ClusterInstance.serverlessV2('writer'),
+  readers: [
+    rds.ClusterInstance.serverlessV2('reader1'),
+    rds.ClusterInstance.serverlessV2('reader2'),
+  ],
+  vpc,
+});
+
+// Routes to reader2 only, for example for reporting workloads
+const reportingEndpoint = cluster.addCustomEndpoint('Reporting', {
+  endpointType: rds.CustomEndpointType.READER,
+  members: rds.CustomEndpointMembers.include([cluster.readerInstances[1]]),
+});
+
+// Routes to the writer and all readers except reader2, including readers added later
+const appEndpoint = cluster.addCustomEndpoint('App', {
+  endpointIdentifier: 'my-app-endpoint',
+  members: rds.CustomEndpointMembers.exclude([cluster.readerInstances[1]]),
+});
+
+declare const fn: lambda.Function;
+fn.addEnvironment('REPORTING_DB_HOST', reportingEndpoint.endpoint.hostname);
+fn.addEnvironment('APP_DB_SOCKET_ADDRESS', appEndpoint.endpoint.socketAddress);
+```
+
+The `endpointIdentifier` is part of the DNS name of the endpoint and must be unique in the AWS
+Region and account. It defaults to an identifier derived from the construct path. Changing it
+replaces the endpoint.
+
+> **Note:** Once a custom endpoint has an `include()` or `exclude()` list, RDS cannot remove the list
+> again in place. Switching such an endpoint to `CustomEndpointMembers.all()` requires replacing the
+> endpoint, for example by giving it a new `endpointIdentifier`. Switching between `include()` and
+> `exclude()`, or changing the instances in the list, is done in place.
+
+A custom endpoint can also be added to an imported cluster, as long as the cluster is imported with
+its endpoint address and port, and existing custom endpoints can be imported with
+`ClusterCustomEndpoint.fromClusterCustomEndpointAttributes()`:
+
+```ts
+const cluster = rds.DatabaseCluster.fromDatabaseClusterAttributes(this, 'Cluster', {
+  clusterIdentifier: 'my-cluster',
+  clusterEndpointAddress: 'my-cluster.cluster-abcdefghijkl.eu-west-1.rds.amazonaws.com',
+  port: 5432,
+});
+const newEndpoint = cluster.addCustomEndpoint('Readers', {
+  endpointType: rds.CustomEndpointType.READER,
+});
+
+const existingEndpoint = rds.ClusterCustomEndpoint.fromClusterCustomEndpointAttributes(this, 'Existing', {
+  endpointIdentifier: 'my-existing-endpoint',
+  endpointAddress: 'my-existing-endpoint.cluster-custom-abcdefghijkl.eu-west-1.rds.amazonaws.com',
+  port: 5432,
+});
+```
+
 ### Monitoring
 
 There are some CloudWatch metrics that are [important for Aurora Serverless
