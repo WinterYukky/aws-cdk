@@ -1088,7 +1088,7 @@ abstract class DatabaseClusterNew extends DatabaseClusterBase {
     });
 
     if (readers.length > 0) {
-      const sortedReaders = readers.sort((a, b) => a.tier - b.tier);
+      const sortedReaders = [...readers].sort((a, b) => a.tier - b.tier);
       const highestTierReaders: IAuroraClusterInstance[] = [];
       const highestTier = sortedReaders[0].tier;
       let hasProvisionedReader = false;

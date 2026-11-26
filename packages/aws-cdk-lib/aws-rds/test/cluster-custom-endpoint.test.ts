@@ -101,10 +101,10 @@ describe('cluster custom endpoint', () => {
     // THEN
     Template.fromStack(stack).hasResourceProperties('AWS::RDS::DBClusterEndpoint', {
       CustomEndpointType: 'READER',
-      StaticMembers: [{ Ref: 'Databasereader13B43287' }],
+      StaticMembers: [{ Ref: 'Databasereader1F54479B8' }],
       ExcludedMembers: Match.absent(),
     });
-    expect(stack.resolve(cluster.readerInstances[0].instanceIdentifier)).toEqual({ Ref: 'Databasereader13B43287' });
+    expect(stack.resolve(cluster.readerInstances[0].instanceIdentifier)).toEqual({ Ref: 'Databasereader1F54479B8' });
   });
 
   test('renders excluded members as ExcludedMembers referencing the instances', () => {
@@ -295,8 +295,9 @@ describe('cluster custom endpoint', () => {
     // THEN
     expect(endpoint.endpointIdentifier).toEqual('my-endpoint');
     expect(endpoint.endpoint.socketAddress).toEqual('my-endpoint.cluster-custom-abcdefghijkl.us-test-1.rds.amazonaws.com:5432');
-    expect(stack.resolve(endpoint.endpointArn)).toEqual('arn:aws:rds:us-test-1:12345:cluster-endpoint:my-endpoint');
-    expect(stack.resolve(endpoint.dbClusterEndpointRef.dbClusterEndpointArn)).toEqual('arn:aws:rds:us-test-1:12345:cluster-endpoint:my-endpoint');
+    const expectedArn = { 'Fn::Join': ['', ['arn:', { Ref: 'AWS::Partition' }, ':rds:us-test-1:12345:cluster-endpoint:my-endpoint']] };
+    expect(stack.resolve(endpoint.endpointArn)).toEqual(expectedArn);
+    expect(stack.resolve(endpoint.dbClusterEndpointRef.dbClusterEndpointArn)).toEqual(expectedArn);
     Template.fromStack(stack).resourceCountIs('AWS::RDS::DBClusterEndpoint', 0);
   });
 });
